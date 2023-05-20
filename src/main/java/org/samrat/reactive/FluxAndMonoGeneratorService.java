@@ -14,6 +14,9 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
+    public String getName(){
+        return "Samrat";
+    }
     public  Flux<String> namesFluxMap(){
         return Flux.fromIterable(List.of("samrat","is","gadha")).doOnNext(n -> {
             int length = n.length();
@@ -23,25 +26,23 @@ public class FluxAndMonoGeneratorService {
 
     public  Flux<String> namesFluxFlatMap(){
         return namesFlux()
-                .doOnNext(n -> {
-                    int length = n.length();
-                    System.out.println("doOnNext print item length::" + length);
-                }).map(String::toUpperCase)
+                .map(String::toUpperCase)
                 .flatMap(this::namesSplitFlux).log();
     }
 
     public Flux<String> namesSplitFlux(String name){
 
         Random rand = new Random();
-        return Flux.fromArray(name.split("")).delayElements(Duration.ofMillis(rand.nextInt(1000))).log();
+        return Flux.fromArray(name.split("")).delayElements(Duration.ofMillis(rand.nextInt(500))).log();
     }
 
     public Mono<String> namesMono(){
         return Mono.just("Krishna")
-                .map(String::toUpperCase);
+                .map(String::toUpperCase).log();
     }
 
-    public Flux<String> namesMononFlatMapMany(){
+    public Flux<String> namesMononFlatMapMany() {
         return namesMono().flatMapMany(this::namesSplitFlux);
+
     }
 }

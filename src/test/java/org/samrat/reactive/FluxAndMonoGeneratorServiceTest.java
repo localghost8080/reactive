@@ -3,6 +3,8 @@ package org.samrat.reactive;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class FluxAndMonoGeneratorServiceTest {
@@ -12,44 +14,49 @@ class FluxAndMonoGeneratorServiceTest {
     @Test
     void namesFlux() {
         var namesFlux = fluxAndMonoGeneratorService.namesFlux();
+        String samrat = "samrat";
         StepVerifier.create(namesFlux) // Takes case of subscription
-                .expectNext("samrat")
+                .expectNext(samrat)
                 .expectNextCount(2)  // count is 2 because 1 event is consumed above
                 .verifyComplete();
-
-        namesFlux = fluxAndMonoGeneratorService.namesFluxMap();
-        StepVerifier.create(namesFlux)
-                .expectNext("SAMRAT","IS","GADHA1")
-                .expectComplete();
-    }
-
-    @Test
-    void namesMono() {
     }
 
     @Test
     void namesFluxMap() {
-        var namesFlux = fluxAndMonoGeneratorService.namesFluxMap();
-        StepVerifier.create(namesFlux)
-                .expectNext("SAMRAT","IS","GADHA1")
-                .expectComplete();
+        StepVerifier.create(fluxAndMonoGeneratorService.namesFluxMap())
+                .expectNext("SAMRAT","IS","GADHA")
+                .expectComplete()
+                .verify();
     }
 
     @Test
     void namesFluxFlatMap() {
         var namesFlux = fluxAndMonoGeneratorService.namesFluxFlatMap();
         StepVerifier.create(namesFlux)
-                .consumeNextWith(System.out::println)
-                //.expectNextCount(12)
+                .recordWith(ArrayList::new)
+                .thenConsumeWhile(x-> true)
+                .consumeRecordedWith(i-> System.out.println(i+ ", "))
                 //.expectNext("S","A","M","R","A","T","I","S","G","A","D","H","A")
-                .expectComplete();
+                .verifyComplete();
+
     }
 
     @Test
-    void namesMononFlatMapMany() {
-        var namesFlux = fluxAndMonoGeneratorService.namesFluxFlatMap();
+    void namesMono(){
+        var namesMono = fluxAndMonoGeneratorService.namesMono();
+        StepVerifier.create(namesMono)
+                .expectNext("KRISHNA")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesMononFlatMapMany(){
+        var namesFlux = fluxAndMonoGeneratorService.namesMononFlatMapMany();
         StepVerifier.create(namesFlux)
-                .expectNext("K","R","I","S","H","N","A")
-                .expectComplete();
+                .recordWith(ArrayList::new)
+                .thenConsumeWhile(x-> true)
+                .consumeRecordedWith(i-> System.out.println(i+ ", "))
+                //.expectNext("S","A","M","R","A","T","I","S","G","A","D","H","A")
+                .verifyComplete();
     }
 }
